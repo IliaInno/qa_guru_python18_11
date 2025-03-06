@@ -7,35 +7,40 @@ from demoqa_tests.utils import attach
 from dotenv import load_dotenv
 
 
-@pytest.fixture(scope='function', autouse=True)
-def setup_browser():
+@pytest.fixture(scope="session")
+def setup_env():
+    load_dotenv()
+
+
+@pytest.fixture(scope='function')
+def browser_manager(setup_env):
     browser.config.base_url = 'https://demoqa.com'
-    driver_options = webdriver.ChromeOptions()
-    driver_options.page_load_strategy = 'eager'
-    browser.config.driver_options = driver_options  # чтоб тест выполнялся когда сайт продолжается грузиться , но html загрузился
-    browser.config.window_width = 1920
     browser.config.window_height = 1080
-    # driver_options = webdriver.ChromeOptions()   #настройка чтоб не открывать браузер , надо для этого 8 , 10 строчку кода
-    # driver_options.add_argument('--headless')
+    browser.config.window_width = 1920
 
     options = Options()
     selenoid_capabilities = {
         "browserName": "chrome",
-        "browserVersion": "125.0",
+        "browserVersion": "133.0",
         "selenoid:options": {
             "enableVNC": True,
-            "enableVideo": False
+            "enableVideo": True
         }
     }
 
+    SELENOID_LOGIN = os.getenv("SELENOID_LOGIN")
+    SELENOID_PASSWORD = os.getenv("SELENOID_PASSWORD")
+    SELENOID_URL = os.getenv("SELENOID_URL")
+
     options.capabilities.update(selenoid_capabilities)
-    browser.config.driver = webdriver.Remote(
-        command_executor=f"https://user1:1234@selenoid.autotests.cloud/wd/hub",
-        options=options)
+    driver = webdriver.Remote(
+        command_executor=f"https://{SELENOID_LOGIN}:{SELENOID_PASSWORD}@{SELENOID_URL}/wd/hub",
+        options=options
+    )
 
+    browser.config.driver = driver
 
-    yield
-    browser.quit()
+    yield browser
 
     attach.add_screenshot(browser)
     attach.add_logs(browser)
