@@ -116,3 +116,4 @@ class RegistrationPage:
     @allure.step("Скролл страницы")
     def scroll_page(self):
         browser.execute_script('window.scrollBy(0, 400);')
+        return self
