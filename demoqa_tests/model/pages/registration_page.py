@@ -112,3 +112,7 @@ class RegistrationPage:
     def click_close_button(self):
         browser.element('#closeLargeModal').should(be.visible).click()
         return self
+
+    @allure.step("Скролл страницы")
+    def scroll_page(self):
+        browser.execute_script('window.scrollBy(0, 400);')
