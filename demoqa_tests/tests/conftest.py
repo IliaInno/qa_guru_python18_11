@@ -6,7 +6,7 @@ from demoqa_tests.utils import attach
 from dotenv import load_dotenv
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def setup_env():
     load_dotenv()
 
@@ -23,7 +23,7 @@ def setup_browser():
     options = Options()
     selenoid_capabilities = {
         "browserName": "chrome",
-        "browserVersion": "100.0",
+        "browserVersion": "125.0",
         "selenoid:options": {
             "enableVNC": True,
             "enableVideo": True
@@ -34,9 +34,10 @@ def setup_browser():
 
     login = os.getenv('LOGIN')
     password = os.getenv('PASSWORD')
+    url = os.getenv('URL')
 
     browser.config.driver = webdriver.Remote(
-        command_executor=f"https://{login}:{password}@selenoid.autotests.cloud/wd/hub",
+        command_executor=f"https://{login}:{password}@{url}/wd/hub",
         options=options)
 
     yield browser
